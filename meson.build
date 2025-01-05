@@ -162,7 +162,6 @@ os_unix = not os_win32
 
 if os_darwin
   wayland_enabled = false
-  vulkan_enabled = false
 else
   macos_enabled = false
 endif
@@ -664,12 +663,55 @@ if os_unix
 endif
 
 # Check for Vulkan support
-# Uses meson's custom vulkan dependency searching. Set the VULKAN_SDK env var
-# to use a custom path for the Vulkan SDK. Bugs that are found with it should
-# be reported upstream and fixed.
-vulkan_dep = dependency('vulkan',
-                        version: vulkan_req,
-                        required: vulkan_enabled)
+if os_darwin
+  # On macOS look for MoltenVK
+  #
+  # - Vulkan SDK 1.3.250 to 1.3.268 support uses @moltenvk-dir@/MoltenVK
+  # - Vulkan SDK 1.3.275 onwards support uses @moltenvk-dir@/macOS
+  # - Homebrew uses @moltenvk-dir@ directly, and libexec/include.
+
+  moltenvk_dir = get_option('moltenvk-dir')
+
+  vulkan_lib_dep = cc.find_library(
+    'MoltenVK',
+    dirs: [
+      join_paths(moltenvk_dir, 'MoltenVK', 'lib'),
+      join_paths(moltenvk_dir, 'macOS', 'lib'),
+      join_paths(moltenvk_dir, 'lib'),
+    ],
+    required: vulkan_enabled)
+
+  moltenvk_includes = []
+  foreach moltenvk_include_dir: [
+    join_paths(moltenvk_dir, 'MoltenVK', 'include'),
+    join_paths(moltenvk_dir, 'macOS', 'include'),
+    join_paths(moltenvk_dir, 'include'),
+    join_paths(moltenvk_dir, 'libexec', 'include')
+  ]
+    if fs.is_dir(moltenvk_include_dir)
+      moltenvk_includes += include_directories(moltenvk_include_dir)
+    endif
+  endforeach
+
+  if vulkan_lib_dep.found() and moltenvk_includes.length() > 0
+    vulkan_dep = declare_dependency(
+      dependencies: vulkan_lib_dep,
+      include_directories: moltenvk_includes)
+  elif vulkan_enabled.enabled()
+    error(f'MoltenVK includes cannot be found in moltenvk-dir "@with_moltenvk_dir@"')
+  else
+    vulkan_dep = disabler()
+  endif
+
+else
+  # Uses meson's custom vulkan dependency searching. Set the VULKAN_SDK env var
+  # to use a custom path for the Vulkan SDK. Bugs that are found with it should
+  # be reported upstream and fixed.
+  vulkan_dep = dependency('vulkan',
+                          version: vulkan_req,
+                          required: vulkan_enabled)
+endif
+
 glslc = find_program('glslc', required: vulkan_enabled)
 if vulkan_dep.found() and glslc.found()
   have_vulkan = true

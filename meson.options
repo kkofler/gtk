@@ -92,6 +92,13 @@ option('accesskit',
        value: 'disabled',
        description: 'Enable the AccessKit backend for accessibility')
 
+option(
+       'moltenvk-dir',
+       type : 'string',
+       value : '',
+       description : 'Location of the MoltenVK SDK (only when building on macOS with Vulkan support)'
+)
+
 # Introspection
 
 option('introspection',
