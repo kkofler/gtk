@@ -246,7 +246,7 @@ macos-arm64:
   needs: []
   variables:
     BACKEND_FLAGS: "-Dx11-backend=false -Dbroadway-backend=true"
-    FEATURE_FLAGS: "-Daccesskit=enabled -Dgobject-introspection:werror=false -Dintrospection=enabled -Dmedia-gstreamer=disabled"
+    FEATURE_FLAGS: "-Dvulkan=auto -Daccesskit=enabled -Dgobject-introspection:werror=false -Dintrospection=enabled -Dmedia-gstreamer=disabled"
     EXTRA_MESON_FLAGS: ""
     # additional settings
     CARGO_HOME: $CI_PROJECT_DIR/.cargo
