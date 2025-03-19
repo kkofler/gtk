@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gdk/gdkdihedralprivate.h"
+#include "gsk/gskenums.h"
 
 #include <graphene.h>
 #include <math.h>
@@ -158,6 +159,82 @@ gsk_rect_coverage (const graphene_rect_t *r1,
     }
 
   *res = r;
+}
+
+static inline float
+gsk_rect_snap_one (float       value,
+                   GskRectSnap snap)
+{
+  switch ((int) snap)
+    {
+    case GSK_RECT_SNAP_FLOOR:
+      return floorf (value);
+    case GSK_RECT_SNAP_CEIL:
+      return ceilf (value);
+    case GSK_RECT_SNAP_ROUND:
+      return round (value);
+    default:
+      return value;
+    }
+}
+
+static inline void
+gsk_rect_snap (const graphene_rect_t  *src,
+               GskRectSnap             snap,
+               graphene_rect_t        *dest)
+{
+  float x, y;
+
+  if (snap == 0)
+    {
+      if (src != dest)
+        *dest = *src;
+      return;
+    }
+
+  x = gsk_rect_snap_one (src->origin.x, (snap >> GSK_RECT_SNAP_LEFT_SHIFT) & GSK_RECT_SNAP_MASK);
+  y = gsk_rect_snap_one (src->origin.y, (snap >> GSK_RECT_SNAP_TOP_SHIFT) & GSK_RECT_SNAP_MASK);
+
+  *dest = GRAPHENE_RECT_INIT (
+      x,
+      y,
+      gsk_rect_snap_one (src->origin.x + src->size.width, (snap >> GSK_RECT_SNAP_RIGHT_SHIFT) & GSK_RECT_SNAP_MASK) - x,
+      gsk_rect_snap_one (src->origin.y + src->size.height, (snap >> GSK_RECT_SNAP_BOTTOM_SHIFT) & GSK_RECT_SNAP_MASK) - y);
+}
+
+static inline void
+gsk_rect_snap_to_grid (const graphene_rect_t  *src,
+                       GskRectSnap             snap,
+                       const graphene_vec2_t  *grid_scale,
+                       const graphene_point_t *grid_offset,
+                       graphene_rect_t        *dest)
+{
+  float xscale, yscale;
+
+  if (snap == 0)
+    {
+      if (src != dest)
+        *dest = *src;
+      return;
+    }
+
+
+  xscale = graphene_vec2_get_x (grid_scale);
+  yscale = graphene_vec2_get_y (grid_scale);
+
+  *dest = GRAPHENE_RECT_INIT (
+      (src->origin.x + grid_offset->x) * xscale,
+      (src->origin.y + grid_offset->y) * yscale,
+      src->size.width * xscale,
+      src->size.height * yscale);
+
+  gsk_rect_snap (dest, snap, dest);
+
+  *dest = GRAPHENE_RECT_INIT (
+      dest->origin.x / xscale - grid_offset->x,
+      dest->origin.y / yscale - grid_offset->y,
+      dest->size.width / xscale,
+      dest->size.height / yscale);
 }
 
 /**
