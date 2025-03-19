@@ -221,6 +221,55 @@ parse_enum (GtkCssParser *parser,
 }
 
 static gboolean
+parse_flags (GtkCssParser *parser,
+             GType         type,
+             gpointer      out_value)
+{
+  GFlagsClass *class;
+  GFlagsValue *v;
+  char *enum_name;
+  int result;
+
+  class = g_type_class_ref (type);
+
+  result = 0;
+
+  do
+    {
+      enum_name = gtk_css_parser_consume_ident (parser);
+      if (enum_name == NULL)
+        {
+          g_type_class_unref (class);
+          return FALSE;
+        }
+
+      v = g_flags_get_value_by_nick (class, enum_name);
+      if (v == NULL)
+        {
+          gtk_css_parser_error_value (parser, "Unknown value \"%s\" for flags \"%s\"",
+                                      enum_name, g_type_name (type));
+          g_free (enum_name);
+          g_type_class_unref (class);
+          return FALSE;
+        }
+
+      if (result & v->value)
+        gtk_css_parser_warn_syntax (parser, "Duplicated value for flags \"%s\"", g_type_name (type));
+
+      result |= v->value;
+
+      g_free (enum_name);
+    }
+  while (!gtk_css_parser_has_token (parser, GTK_CSS_TOKEN_EOF));
+
+  *(int*)out_value = result;
+
+  g_type_class_unref (class);
+
+  return TRUE;
+}
+
+static gboolean
 parse_rect (GtkCssParser    *parser,
             Context         *context,
             gpointer         out_rect)
@@ -1104,6 +1153,14 @@ parse_mask_mode (GtkCssParser *parser,
   gtk_css_parser_error_syntax (parser, "Not a valid mask mode.");
 
   return FALSE;
+}
+
+static gboolean
+parse_rect_snap (GtkCssParser *parser,
+                 Context      *context,
+                 gpointer      out_snap)
+{
+  return parse_flags (parser, GSK_TYPE_RECT_SNAP, out_snap);
 }
 
 static PangoFont *
@@ -2239,9 +2296,11 @@ parse_texture_node (GtkCssParser *parser,
 {
   graphene_rect_t bounds = GRAPHENE_RECT_INIT (0, 0, 50, 50);
   GdkTexture *texture = NULL;
+  GskRectSnap snap = 0;
   const Declaration declarations[] = {
     { "bounds", parse_rect, NULL, &bounds },
-    { "texture", parse_texture, clear_texture, &texture }
+    { "texture", parse_texture, clear_texture, &texture },
+    { "snap", parse_rect_snap, NULL, &snap },
   };
   GskRenderNode *node;
 
@@ -2250,7 +2309,7 @@ parse_texture_node (GtkCssParser *parser,
   if (texture == NULL)
     texture = create_default_texture ();
 
-  node = gsk_texture_node_new (texture, &bounds);
+  node = gsk_texture_node_new_snapped (texture, &bounds, snap);
   g_object_unref (texture);
 
   return node;
@@ -3858,6 +3917,66 @@ append_enum_param (Printer    *p,
 }
 
 static void
+append_snap_param (Printer     *p,
+                   const char  *param_name,
+                   GskRectSnap  snap)
+{
+  if (snap == 0)
+    return;
+
+  _indent (p);
+  g_string_append_printf (p->str, "%s:", param_name);
+
+  /* try the shortcuts */
+  if (snap == GSK_RECT_SNAP_GROW)
+    {
+      g_string_append (p->str, " grow;\n");
+      return;
+    }
+  else if (snap == GSK_RECT_SNAP_SHRINK)
+    {
+      g_string_append (p->str, " shrink;\n");
+      return;
+    }
+  else if (snap == GSK_RECT_SNAP_CLOSE)
+    {
+      g_string_append (p->str, " close;\n");
+      return;
+    }
+    
+  /* okay, one by one */
+  if ((snap & GSK_RECT_SNAP_TOP_CLOSE) == GSK_RECT_SNAP_TOP_CLOSE)
+    g_string_append (p->str, " top-close");
+  else if ((snap & GSK_RECT_SNAP_TOP_DOWN) == GSK_RECT_SNAP_TOP_DOWN)
+    g_string_append (p->str, " top-down");
+  else if ((snap & GSK_RECT_SNAP_TOP_UP) == GSK_RECT_SNAP_TOP_UP)
+    g_string_append (p->str, " top-up");
+
+  if ((snap & GSK_RECT_SNAP_RIGHT_CLOSE) == GSK_RECT_SNAP_RIGHT_CLOSE)
+    g_string_append (p->str, " right-close");
+  else if ((snap & GSK_RECT_SNAP_RIGHT_LEFT) == GSK_RECT_SNAP_RIGHT_LEFT)
+    g_string_append (p->str, " right-left");
+  else if ((snap & GSK_RECT_SNAP_RIGHT_RIGHT) == GSK_RECT_SNAP_RIGHT_RIGHT)
+    g_string_append (p->str, " right-right");
+
+  if ((snap & GSK_RECT_SNAP_BOTTOM_CLOSE) == GSK_RECT_SNAP_BOTTOM_CLOSE)
+    g_string_append (p->str, " bottom-close");
+  else if ((snap & GSK_RECT_SNAP_BOTTOM_DOWN) == GSK_RECT_SNAP_BOTTOM_DOWN)
+    g_string_append (p->str, " bottom-down");
+  else if ((snap & GSK_RECT_SNAP_BOTTOM_UP) == GSK_RECT_SNAP_BOTTOM_UP)
+    g_string_append (p->str, " bottom-up");
+
+  if ((snap & GSK_RECT_SNAP_LEFT_CLOSE) == GSK_RECT_SNAP_LEFT_CLOSE)
+    g_string_append (p->str, " left-close");
+  else if ((snap & GSK_RECT_SNAP_LEFT_LEFT) == GSK_RECT_SNAP_LEFT_LEFT)
+    g_string_append (p->str, " left-left");
+  else if ((snap & GSK_RECT_SNAP_LEFT_RIGHT) == GSK_RECT_SNAP_LEFT_RIGHT)
+    g_string_append (p->str, " left-right");
+
+  g_string_append (p->str, ";\n");
+}
+
+static void
 append_vec4_param (Printer               *p,
                    const char            *param_name,
                    const graphene_vec4_t *value)
@@ -4726,6 +4845,7 @@ render_node_print (Printer       *p,
 
         append_rect_param (p, "bounds", &node->bounds);
         append_texture_param (p, "texture", gsk_texture_node_get_texture (node));
+        append_snap_param (p, "snap", gsk_texture_node_get_snap (node));
 
         end_node (p);
       }
