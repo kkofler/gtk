@@ -460,6 +460,7 @@ gdk_vulkan_context_check_swapchain (GdkVulkanContext  *context,
   GDK_DEBUG (VULKAN, "Using surface present mode %s",
              surface_present_mode_to_string (present_mode));
 
+  // TODO: Should buffer size be scaled down? Should layer be scaled up?
   gdk_draw_context_get_buffer_size (GDK_DRAW_CONTEXT (context), &size.width, &size.height);
 
   /*
@@ -513,6 +514,7 @@ gdk_vulkan_context_check_swapchain (GdkVulkanContext  *context,
                                                 .imageFormat = priv->formats[priv->current_depth].vk_format.format,
                                                 .imageColorSpace = priv->formats[priv->current_depth].vk_format.colorSpace,
                                                 .imageExtent = size,
+                                                // .imageExtent = capabilities.currentExtent,
                                                 .imageArrayLayers = 1,
                                                 .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                                 .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
@@ -717,6 +719,7 @@ gdk_vulkan_context_begin_frame (GdkDrawContext  *draw_context,
 
   while (TRUE)
     {
+      // This call causes a warning: VK_SUBOPTIMAL_KHR
       acquire_result = GDK_VK_CHECK (vkAcquireNextImageKHR, gdk_vulkan_context_get_device (context),
                                                             priv->swapchain,
                                                             UINT64_MAX,

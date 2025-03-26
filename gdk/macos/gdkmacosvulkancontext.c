@@ -46,6 +46,10 @@ gdk_macos_vulkan_context_create_surface (GdkVulkanContext *context,
 
   layer = [CAMetalLayer layer];
   [layer setOpaque:NO];
+
+  // This hack makes it render on Retina displays again. ContentScale should be updated according
+  // to GdkSurface
+  [layer setContentsScale: 2.0];
   [view setLayer:layer];
 
   info.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;

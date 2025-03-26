@@ -52,14 +52,14 @@
  * update the contentsScale of the layer, which will trigger a Vulkan VK_SUBOPTIMAL_KHR result, which
  * causes the  to replace the swapchain, in order to optimize rendering for the new resolution.
  */
--(BOOL)layer:(CALayer *)layer shouldInheritContentsScale:(CGFloat)newScale fromWindow:(NSWindow *)window
-{
-	if (newScale == layer.contentsScale)
-    return NO;
+// -(BOOL)layer:(CALayer *)layer shouldInheritContentsScale:(CGFloat)newScale fromWindow:(NSWindow *)window
+// {
+// 	if (newScale == layer.contentsScale)
+//     return NO;
 
-	layer.contentsScale = newScale;
-	return YES;
-}
+// 	layer.contentsScale = newScale;
+// 	return YES;
+// }
 
 
 -(BOOL)wantsUpdateLayer
