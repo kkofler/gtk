@@ -114,6 +114,7 @@ gdk_win32_gl_context_wgl_end_frame (GdkDrawContext *draw_context,
       context->old_updated_area[0])
     {
       int num_rectangles = cairo_region_num_rectangles (context->old_updated_area[0]);
+      int scale = surface_win32->surface_scale;
       cairo_rectangle_int_t rectangle;
 
       for (int i = 0; i < num_rectangles; i++)
@@ -126,10 +127,10 @@ gdk_win32_gl_context_wgl_end_frame (GdkDrawContext *draw_context,
            */
           rectangle.y = surface->height - rectangle.y - rectangle.height;
 
-          context_wgl->ptr_glAddSwapHintRectWIN (rectangle.x,
-                                                 rectangle.y,
-                                                 rectangle.width,
-                                                 rectangle.height);
+          context_wgl->ptr_glAddSwapHintRectWIN (rectangle.x * scale,
+                                                 rectangle.y * scale,
+                                                 rectangle.width * scale,
+                                                 rectangle.height * scale);
         }
     }
 
