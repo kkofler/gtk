@@ -68,6 +68,17 @@ gboolean                gdk_memory_layout_is_aligned            (const GdkMemory
       return (val); \
     } \
 }G_STMT_END
+#define gdk_memory_layout_return_if_invalid(layout) G_STMT_START{\
+  GError *_e = NULL; \
+  if (!gdk_memory_layout_is_valid (layout, &_e)) \
+    { \
+      g_return_if_fail_warning (G_LOG_DOMAIN, \
+                                G_STRFUNC, \
+                                _e->message); \
+      g_clear_error (&_e); \
+      return; \
+    } \
+}G_STMT_END
 
 gsize                   gdk_memory_layout_offset                (const GdkMemoryLayout          *layout,
                                                                  gsize                           plane,
