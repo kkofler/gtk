@@ -119,8 +119,6 @@ gsk_gl_image_new_backbuffer (GskGLDevice    *device,
     {
       self->gl_internal_format = gl_internal_format;
     }
-  if (swizzle_is_identity (swizzle))
-    flags |= GSK_GPU_IMAGE_BLIT;
 
   gsk_gpu_image_setup (GSK_GPU_IMAGE (self), flags, format, width, height);
 
@@ -176,8 +174,6 @@ gsk_gl_image_new (GskGLDevice      *device,
     {
       self->gl_internal_format = gl_internal_format;
     }
-  if (swizzle_is_identity (swizzle))
-    flags |= GSK_GPU_IMAGE_BLIT;
   flags |= GSK_GPU_IMAGE_DOWNLOADABLE;
 
   gsk_gpu_image_setup (GSK_GPU_IMAGE (self),
@@ -252,8 +248,6 @@ gsk_gl_image_new_for_texture (GskGLDevice      *device,
       flags &= ~(GSK_GPU_IMAGE_CAN_MIPMAP | GSK_GPU_IMAGE_MIPMAP);
       if (!(extra_flags & GSK_GPU_IMAGE_EXTERNAL))
         {
-          if (swizzle_is_identity (swizzle))
-            flags |= GSK_GPU_IMAGE_BLIT;
           flags |= GSK_GPU_IMAGE_DOWNLOADABLE;
         }
     }
