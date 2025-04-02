@@ -90,8 +90,8 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 #endif
   else if (g_ascii_strcasecmp (renderer_name, "cairo") == 0)
     return gsk_cairo_renderer_new ();
-  else if (g_ascii_strcasecmp (renderer_name, "gl") == 0)
-    return gsk_gl_renderer_new ();
+  else if (g_ascii_strcasecmp (renderer_name, "ngl") == 0)
+    return gsk_ngl_renderer_new ();
 #ifdef GDK_RENDERING_VULKAN
   else if (g_ascii_strcasecmp (renderer_name, "vulkan") == 0)
     return gsk_vulkan_renderer_new ();
