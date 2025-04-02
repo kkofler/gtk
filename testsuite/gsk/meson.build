@@ -294,6 +294,17 @@ compare_xfails = {
     'stroke-fractional-translate': ['plain','flip','rotate','repeat','mask','replay','clip','colorflip'],
     'stroke-fractional-translate-gradient': ['plain','flip','rotate','repeat','mask','replay','clip','colorflip'],
   }
+  'gl': {
+    # 6525
+    'container-single-child-offscreen-for-opacity': ['rotate'],
+    'cross-fade-in-opacity': ['rotate'],
+    'mask-modes-in-opacity': ['rotate'],
+    'opacity-overlapping-children': ['rotate'],
+    'scaled-texture-scale': ['rotate'],
+    'shadow-opacity': ['rotate'],
+    'shadow-texture-formats': ['rotate'],
+    'texture-scale-nearest-vs-linear': ['rotate'],
+  },
 }
 
 foreach renderer : renderers
