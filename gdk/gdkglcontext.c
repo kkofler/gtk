@@ -590,6 +590,18 @@ gdk_gl_context_real_make_current (GdkGLContext *context,
 #endif
 }
 
+double
+gdk_gl_context_get_scale (GdkGLContext *self)
+{
+  GdkSurface *surface;
+  double scale;
+
+  surface = gdk_draw_context_get_surface (GDK_DRAW_CONTEXT (self));
+  scale = gdk_surface_get_scale (surface);
+
+  return scale;
+}
+
 static void
 gdk_gl_context_real_begin_frame (GdkDrawContext  *draw_context,
                                  GdkMemoryDepth   depth,
@@ -1974,7 +1986,7 @@ gdk_gl_context_clear_current (void)
  *
  * Does a gdk_gl_context_clear_current() if the current context is attached
  * to @surface, leaves the current context alone otherwise.
- * 
+ *
  * Returns: (nullable) (transfer full): The context that was cleared, so that it can be
  *   re-made current later
  **/
