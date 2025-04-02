@@ -169,7 +169,7 @@ gsk_gpu_download_op_vk_sync_semaphore (GskGpuDownloadOp *self)
                                              &sync_file_fd) == VK_SUCCESS)
     {
       gdk_dmabuf_import_sync_file (fd, DMA_BUF_SYNC_WRITE, sync_file_fd);
-      
+
       close (sync_file_fd);
     }
 
@@ -306,16 +306,16 @@ gsk_gpu_download_op_gl_command (GskGpuOp          *op,
   GskGpuDownloadOp *self = (GskGpuDownloadOp *) op;
   GdkGLTextureBuilder *builder;
   GskGLTextureData *data;
+  GdkGLContext *context;
   guint texture_id;
 #ifdef HAVE_DMABUF
-  GdkGLContext *context;
   Texture *texture;
 #endif
 
+  context = GDK_GL_CONTEXT (gsk_gpu_frame_get_context (frame));
   texture_id = gsk_gl_image_get_texture_id (GSK_GL_IMAGE (self->image));
 
 #ifdef HAVE_DMABUF
-  context = GDK_GL_CONTEXT (gsk_gpu_frame_get_context (frame));
   texture = g_new0 (Texture, 1);
 
   if (gdk_gl_context_export_dmabuf (context, texture_id, &texture->dmabuf))
@@ -348,7 +348,9 @@ gsk_gpu_download_op_gl_command (GskGpuOp          *op,
    * the texture might survive the frame and its surface */
   data->context = g_object_ref (gdk_display_get_gl_context (gsk_gpu_device_get_display (gsk_gpu_frame_get_device (frame))));
   data->texture_id = texture_id;
-  data->sync = glFenceSync (GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+
+  if (gdk_gl_context_has_feature (context, GDK_GL_FEATURE_SYNC))
+    data->sync = glFenceSync (GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 
   builder = gdk_gl_texture_builder_new ();
   gdk_gl_texture_builder_set_context (builder, data->context);
