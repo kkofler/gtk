@@ -20,14 +20,12 @@
 
 #pragma once
 
-#ifndef __GI_SCANNER__
-# define WARNING_MSG "#include <gsk/gsk.h> instead of <gsk/gl/gskglrenderer.h> to avoid this warning"
-# ifdef _MSC_VER
-#  pragma message("WARNING: " WARNING_MSG)
-# else
-#  warning WARNING_MSG
-# endif
-# undef WARNING_MSG
+#define WARNING_MSG "#include <gsk/gsk.h> instead of <gsk/gl/gskglrenderer.h> to avoid this warning"
+#ifdef _MSC_VER
+#pragma message("WARNING: " WARNING_MSG)
+#else
+#warning WARNING_MSG
 #endif
+#undef WARNING_MSG
 
 #include <gsk/gsk.h>
