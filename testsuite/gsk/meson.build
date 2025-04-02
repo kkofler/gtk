@@ -228,6 +228,7 @@ informative_render_tests = [
 
 renderers = [
   { 'name': 'broadway' },
+  { 'name': 'gl' },
   { 'name': 'cairo' },
   { 'name': 'ngl' },
   { 'name': 'vulkan' },

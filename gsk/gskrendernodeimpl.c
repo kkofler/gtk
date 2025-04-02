@@ -24,6 +24,7 @@
 #include "gskcairorenderer.h"
 #include "gskdebugprivate.h"
 #include "gskdiffprivate.h"
+#include "gl/gskglrenderer.h"
 #include "gskpathprivate.h"
 #include "gskrectprivate.h"
 #include "gskrendererprivate.h"
@@ -31,7 +32,6 @@
 #include "gskstrokeprivate.h"
 #include "gsktransformprivate.h"
 #include "gskprivate.h"
-#include "gpu/gskglrenderer.h"
 
 #include "gdk/gdkcairoprivate.h"
 #include "gdk/gdkcolorstateprivate.h"

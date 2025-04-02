@@ -15,7 +15,7 @@ gsk_public_sources = files([
   'gskroundedrect.c',
   'gskstroke.c',
   'gsktransform.c',
-  'gpu/gskglrenderer.c',
+  'gpu/gsknglrenderer.c',
   'gpu/gskvulkanrenderer.c',
 ])
 
@@ -26,6 +26,7 @@ gsk_private_sources = files([
   'gskdebug.c',
   'gskprivate.c',
   'gl/fp16.c',
+  'gl/gskglrenderer.c',
   'gpu/gskglbuffer.c',
   'gpu/gskgldevice.c',
   'gpu/gskglframe.c',
@@ -96,8 +97,7 @@ gsk_public_gl_headers = files([
 ])
 
 gsk_public_gpu_headers = files([
-  'gpu/gskvulkanrenderer.h',
-  'gpu/gskglrenderer.h'
+  'gpu/gskvulkanrenderer.h'
 ])
 install_headers(gsk_public_gpu_headers, subdir: 'gtk-4.0/gsk/gpu')
 gsk_public_headers += gsk_public_gpu_headers
