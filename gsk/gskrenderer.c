@@ -537,6 +537,8 @@ get_renderer_for_name (const char *renderer_name)
                         "  broadway - Disabled during GTK build\n"
 #endif
                         "     cairo - Use the Cairo fallback renderer\n"
+                        "    opengl - Use the OpenGL renderer\n"
+                        "        gl - Use the OpenGL renderer\n"
                         "       ngl - Use the OpenGL renderer\n"
 #ifdef GDK_RENDERING_VULKAN
                         "    vulkan - Use the Vulkan renderer\n"
@@ -640,10 +642,10 @@ get_renderer_for_gl (GdkSurface *surface)
 static GType
 get_renderer_for_gl_fallback (GdkSurface *surface)
 {
-  if (!gl_supported_platform (surface, gsk_ngl_renderer_get_type (), TRUE))
+  if (!gl_supported_platform (surface, GSK_TYPE_GL_RENDERER, TRUE))
     return G_TYPE_INVALID;
 
-  return gsk_ngl_renderer_get_type ();
+  return GSK_TYPE_GL_RENDERER;
 }
 
 #ifdef GDK_RENDERING_VULKAN
