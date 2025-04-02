@@ -25,6 +25,7 @@ gsk_private_sources = files([
   'gskcurve.c',
   'gskdebug.c',
   'gskprivate.c',
+  'gskprofiler.c',
   'gl/fp16.c',
   'gl/gskglrenderer.c',
   'gpu/gskglbuffer.c',
