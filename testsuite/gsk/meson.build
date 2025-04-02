@@ -4,7 +4,7 @@ compare_render = executable('compare-render',
   c_args: common_cflags + ['-DGTK_COMPILATION'],
 )
 
-node_parser = executable('node-parser', 
+node_parser = executable('node-parser',
   [ 'node-parser.c', '../testutils.c' ],
   dependencies: libgtk_dep,
   c_args: common_cflags,
@@ -266,6 +266,17 @@ compare_xfails = {
     'inter-optical-scaling': ['plain','flip','rotate','repeat','mask','replay','clip','colorflip'],
     'eagain': ['plain','flip','rotate','repeat','mask','replay','clip','colorflip'],
   }
+  'gl': {
+    # 6525
+    'container-single-child-offscreen-for-opacity': ['rotate'],
+    'cross-fade-in-opacity': ['rotate'],
+    'mask-modes-in-opacity': ['rotate'],
+    'opacity-overlapping-children': ['rotate'],
+    'scaled-texture-scale': ['rotate'],
+    'shadow-opacity': ['rotate'],
+    'shadow-texture-formats': ['rotate'],
+    'texture-scale-nearest-vs-linear': ['rotate'],
+  },
 }
 
 foreach renderer : renderers
