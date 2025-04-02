@@ -20,12 +20,6 @@
 
 #pragma once
 
-#define WARNING_MSG "#include <gsk/gsk.h> instead of <gsk/gl/gskglrenderer.h> to avoid this warning"
-#ifdef _MSC_VER
-#pragma message("WARNING: " WARNING_MSG)
-#else
-#warning WARNING_MSG
-#endif
-#undef WARNING_MSG
+#warning "#include <gsk/gsk.h> instead of <gsk/gl/gskglrenderer.h> to avoid this warning"
 
 #include <gsk/gsk.h>
