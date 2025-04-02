@@ -695,6 +695,18 @@ gdk_gl_context_ensure_egl_surface (GdkGLContext   *self,
 }
 #endif
 
+double
+gdk_gl_context_get_scale (GdkGLContext *self)
+{
+  GdkSurface *surface;
+  double scale;
+
+  surface = gdk_draw_context_get_surface (GDK_DRAW_CONTEXT (self));
+  scale = gdk_surface_get_scale (surface);
+
+  return scale;
+}
+
 static void
 gdk_gl_context_real_begin_frame (GdkDrawContext  *draw_context,
                                  gpointer         context_data,
