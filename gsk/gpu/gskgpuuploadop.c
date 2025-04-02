@@ -27,9 +27,11 @@ gsk_gpu_upload_op_gl_command_with_area (GskGpuOp                    *op,
 {
   GskGLImage *gl_image = GSK_GL_IMAGE (image);
   GdkMemoryLayout layout;
+  GdkGLContext *context;
   guchar *data;
   guint gl_format, gl_type, stride, bpp;
 
+  context = GDK_GL_CONTEXT (gsk_gpu_frame_get_context (frame));
   gdk_memory_layout_init (&layout,
                           gsk_gpu_image_get_format (GSK_GPU_IMAGE (image)),
                           area->width,
@@ -56,7 +58,7 @@ gsk_gpu_upload_op_gl_command_with_area (GskGpuOp                    *op,
     {
       glTexSubImage2D (GL_TEXTURE_2D, 0, area->x, area->y, area->width, area->height, gl_format, gl_type, data);
     }
-  else if (stride % bpp == 0)
+  else if (stride % bpp == 0 && gdk_gl_context_has_feature (context, GDK_GL_FEATURE_UNPACK_SUBIMAGE))
     {
       glPixelStorei (GL_UNPACK_ROW_LENGTH, stride / bpp);
 
