@@ -13,3 +13,4 @@ GDK_AVAILABLE_IN_ALL
 GskRenderer *gsk_ngl_renderer_new      (void);
 
 G_END_DECLS
+
