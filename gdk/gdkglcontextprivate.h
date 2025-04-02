@@ -35,6 +35,7 @@ typedef enum {
   GDK_GL_FEATURE_EXTERNAL_OBJECTS           = 1 << 3,
   GDK_GL_FEATURE_EXTERNAL_OBJECTS_WIN32     = 1 << 4,
   GDK_GL_FEATURE_UNPACK_SUBIMAGE            = 1 << 5,
+  GDK_GL_FEATURE_VERTEX_HALF_FLOAT          = 1 << 6,
 } GdkGLFeatures;
 
 #define GDK_GL_N_FEATURES 3
