@@ -263,6 +263,14 @@ if have_vulkan
   ]
 endif
 
+compare_xfails_small_texture = [
+  'big-checkerboard',
+  'big-checkerboard-scaled-down',
+  'big-checkerboard-scaled-down2',
+  'repeat-repeats', # only fails when rotated
+  'glyph-scaling',
+]
+
 variants = {
   'plain': '--plain',
   'flip': '--flip',
@@ -322,6 +330,10 @@ foreach renderer : renderers
       'gsk-' + renderer_name,
       'gsk-compare-' + renderer_name,
     ]
+
+    if compare_xfails_small_texture.contains(testname)
+      suites += 'wayland_gles2_failing'
+    endif
 
     test_env = [
       'GSK_RENDERER=' + renderer_name,
