@@ -4,7 +4,7 @@ compare_render = executable('compare-render',
   c_args: common_cflags + ['-DGTK_COMPILATION'],
 )
 
-node_parser = executable('node-parser', 
+node_parser = executable('node-parser',
   [ 'node-parser.c', '../testutils.c' ],
   dependencies: libgtk_dep,
   c_args: common_cflags,
@@ -231,7 +231,7 @@ informative_render_tests = [
 renderers = [
   { 'name': 'broadway' },
   { 'name': 'cairo' },
-  { 'name': 'gl' },
+  { 'name': 'ngl' },
   { 'name': 'vulkan' },
 ]
 
@@ -247,7 +247,7 @@ variants = {
 }
 
 compare_xfails = {
-  'gl': {
+  'ngl': {
     # the gradients are prone to rounding errors which become
     # more pronounced in small clips, it seems
     'radial-gradient-with-64-colorstops': ['plain','flip','rotate','repeate','mask','replay','clip','colorflip'],
