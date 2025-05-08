@@ -4,7 +4,7 @@ compare_render = executable('compare-render',
   c_args: common_cflags + ['-DGTK_COMPILATION'],
 )
 
-node_parser = executable('node-parser', 
+node_parser = executable('node-parser',
   [ 'node-parser.c', '../testutils.c' ],
   dependencies: libgtk_dep,
   c_args: common_cflags,
@@ -251,7 +251,7 @@ informative_render_tests = [
 
 renderers = [
   { 'name': 'cairo' },
-  { 'name': 'gl' },
+  { 'name': 'ngl' },
 ]
 if broadway_enabled
   renderers += [
@@ -276,7 +276,7 @@ variants = {
 }
 
 compare_xfails = {
-  'gl': {
+  'ngl': {
     'blur-child-bounds-oversize': ['clip'], # 6450
     'rounded-clip-with-huge-bounds': ['plain','flip','rotate','repeat','mask','replay','clip','colorflip'], # 6532
     'big-checkerboard': ['clipped'], # 6444
