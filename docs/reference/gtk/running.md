@@ -456,6 +456,9 @@ using and the GDK backend supports them:
 `opengl`
 : Selects the OpenGL renderer
 
+`ngl`
+: Selects the OpenGL renderer
+
 `gl`:
 : Selects the OpenGL renderer.
 
