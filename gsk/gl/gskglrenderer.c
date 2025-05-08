@@ -103,10 +103,9 @@ gsk_gl_renderer_dmabuf_downloader_supports (GdkDmabufDownloader  *downloader,
 static gboolean
 gsk_gl_renderer_dmabuf_downloader_download (GdkDmabufDownloader *downloader_,
                                             GdkDmabufTexture    *texture,
-                                            GdkMemoryFormat      format,
-                                            GdkColorState       *color_state,
                                             guchar              *data,
-                                            gsize                stride)
+                                            const GdkMemoryLayout *layout,
+                                            GdkColorState       *color_state)
 {
   GskRenderer *renderer = GSK_RENDERER (downloader_);
   GdkGLContext *previous;
@@ -130,9 +129,9 @@ gsk_gl_renderer_dmabuf_downloader_download (GdkDmabufDownloader *downloader_,
   gsk_render_node_unref (node);
 
   downloader = gdk_texture_downloader_new (native);
-  gdk_texture_downloader_set_format (downloader, format);
+  gdk_texture_downloader_set_format (downloader, layout->format);
   gdk_texture_downloader_set_color_state (downloader, color_state);
-  gdk_texture_downloader_download_into (downloader, data, stride);
+  gdk_texture_downloader_download_into (downloader, data, layout->planes[0].stride);
   gdk_texture_downloader_free (downloader);
 
   g_object_unref (native);
@@ -340,6 +339,7 @@ gsk_gl_renderer_render (GskRenderer          *renderer,
   else
     opaque = NULL;
   gdk_draw_context_begin_frame_full (GDK_DRAW_CONTEXT (self->context),
+                                     NULL,
                                      gsk_render_node_get_preferred_depth (root),
                                      update_area,
                                      opaque);
@@ -355,7 +355,7 @@ gsk_gl_renderer_render (GskRenderer          *renderer,
   gsk_gl_driver_end_frame (self->driver);
   gsk_gl_render_job_free (job);
 
-  gdk_draw_context_end_frame_full (GDK_DRAW_CONTEXT (self->context));
+  gdk_draw_context_end_frame_full (GDK_DRAW_CONTEXT (self->context), NULL);
 
   gsk_gl_driver_after_frame (self->driver);
 
@@ -414,7 +414,7 @@ gsk_gl_renderer_render_texture (GskRenderer           *renderer,
       return texture;
     }
 
-  /* Don't use float textures for SRGB or node-editor turns on high 
+  /* Don't use float textures for SRGB or node-editor turns on high
    * depth unconditionally. */
   if (gsk_render_node_get_preferred_depth (root) != GDK_MEMORY_NONE &&
       gsk_render_node_get_preferred_depth (root) != GDK_MEMORY_U8 &&
