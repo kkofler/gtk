@@ -1610,7 +1610,7 @@ gsk_gl_command_queue_do_upload_texture_chunk (GskGLCommandQueue *self,
   bytes = gdk_texture_downloader_download_bytes (&downloader, &stride);
   gdk_texture_downloader_finish (&downloader);
   data = g_bytes_get_data (bytes, NULL);
-  bpp = gdk_memory_format_bytes_per_pixel (data_format);
+  bpp = gdk_memory_format_get_plane_block_bytes (data_format, 0);
 
   if (gdk_profiler_is_running ())
     {
