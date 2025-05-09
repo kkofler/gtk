@@ -279,14 +279,22 @@ gsk_gl_glyph_library_upload_glyph (GskGLGlyphLibrary     *self,
   if (gdk_gl_context_get_use_es (gdk_gl_context_get_current ()))
     {
       pixel_data = free_data = g_malloc (width * height * 4);
-      gdk_memory_convert (pixel_data, width * 4,
-                          GDK_MEMORY_R8G8B8A8_PREMULTIPLIED,
+      gdk_memory_convert (pixel_data,
+                          &GDK_MEMORY_LAYOUT_SIMPLE (
+                              GDK_MEMORY_R8G8B8A8_PREMULTIPLIED,
+                              width,
+                              height,
+                              width * 4
+                          ),
                           GDK_COLOR_STATE_SRGB,
                           cairo_image_surface_get_data (surface),
-                          stride,
-                          GDK_MEMORY_DEFAULT,
-                          GDK_COLOR_STATE_SRGB,
-                          width, height);
+                          &GDK_MEMORY_LAYOUT_SIMPLE (
+                              GDK_MEMORY_DEFAULT,
+                              width,
+                              height,
+                              stride
+                          ),
+                          GDK_COLOR_STATE_SRGB);
       stride = width * 4;
       gl_format = GL_RGBA;
       gl_type = GL_UNSIGNED_BYTE;
