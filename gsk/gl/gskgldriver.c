@@ -46,6 +46,7 @@
 
 #include <gdk/gdkmemoryformatprivate.h>
 #include <gdk/gdkdmabuftextureprivate.h>
+#include <gdk/gdkdmabufeglprivate.h>
 
 
 G_DEFINE_TYPE (GskGLDriver, gsk_gl_driver, G_TYPE_OBJECT)
@@ -832,9 +833,11 @@ gsk_gl_driver_import_dmabuf_texture (GskGLDriver      *self,
   format = gdk_texture_get_format (GDK_TEXTURE (texture));
   premultiply = gdk_memory_format_alpha (format) == GDK_MEMORY_ALPHA_STRAIGHT;
 
-  texture_id = gdk_gl_context_import_dmabuf (context,
+  texture_id = gdk_dmabuf_egl_import_dmabuf (context,
                                              width, height,
                                              dmabuf,
+                                             EGL_ITU_REC601_EXT,
+                                             EGL_YUV_NARROW_RANGE_EXT,
                                              &external);
   if (texture_id == 0)
     return 0;
@@ -1538,7 +1541,7 @@ gsk_gl_driver_add_texture_slices (GskGLDriver        *self,
       data4 = g_malloc (4 * w * extra_pixels);
 
       format = gdk_texture_get_format (GDK_TEXTURE (memtex));
-      bpp = gdk_memory_format_bytes_per_pixel (format);
+      bpp = gdk_memory_format_get_plane_block_bytes (format, 0);
 
       for (int i = 0; i < w; i++)
         {
