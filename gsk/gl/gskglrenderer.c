@@ -183,6 +183,7 @@ static gboolean
 gsk_gl_renderer_realize (GskRenderer  *renderer,
                          GdkDisplay   *display,
                          GdkSurface   *surface,
+                         gboolean      attach,
                          GError      **error)
 {
   G_GNUC_UNUSED gint64 start_time = GDK_PROFILER_CURRENT_TIME;
@@ -232,6 +233,9 @@ gsk_gl_renderer_realize (GskRenderer  *renderer,
   if (!(driver = gsk_gl_driver_for_display (display, debug_shaders, error)))
     goto failure;
 
+  if (attach && !gdk_draw_context_attach (GDK_DRAW_CONTEXT (self->context), error))
+    goto failure;
+
   self->command_queue = gsk_gl_driver_create_command_queue (driver, context);
   self->context = g_steal_pointer (&context);
   self->driver = g_steal_pointer (&driver);
@@ -260,6 +264,8 @@ gsk_gl_renderer_unrealize (GskRenderer *renderer)
   GskGLRenderer *self = (GskGLRenderer *)renderer;
 
   g_assert (GSK_IS_GL_RENDERER (renderer));
+
+  gdk_draw_context_detach (GDK_DRAW_CONTEXT (self->context));
 
   gdk_gl_context_make_current (self->context);
 
