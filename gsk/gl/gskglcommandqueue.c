@@ -1492,6 +1492,7 @@ memory_format_gl_format (GskGLCommandQueue *self,
   GdkMemoryFormat alt_format;
   const GdkMemoryFormat *fallbacks;
   gsize i;
+  GdkSwizzle swizzle, alt_swizzle;
 
   /* No support for straight formats yet */
   if (gdk_memory_format_alpha (data_format) == GDK_MEMORY_ALPHA_STRAIGHT)
@@ -1503,28 +1504,33 @@ memory_format_gl_format (GskGLCommandQueue *self,
 
   /* First, try the format itself */
   flags = gdk_gl_context_get_format_flags (self->context, data_format);
-  if ((flags & required_flags) == required_flags)
-    {
+  if ((flags & required_flags) == required_flags &&
       gdk_memory_format_gl_format (data_format,
+                                   0,
                                    gdk_gl_context_get_use_es (self->context),
                                    gl_internalformat,
                                    gl_internalsrgbformat,
                                    gl_format,
                                    gl_type,
-                                   gl_swizzle);
+                                   &swizzle))
+    {
+      gdk_swizzle_to_gl (swizzle, gl_swizzle);
       *out_can_mipmap = (flags & GDK_GL_FORMAT_RENDERABLE) ? TRUE : FALSE;
       return data_format;
     }
 
   /* Second, try the potential RGBA format */
-  if (gdk_memory_format_gl_rgba_format (data_format,
-                                        gdk_gl_context_get_use_es (self->context),
-                                        &alt_format,
-                                        gl_internalformat,
-                                        gl_internalsrgbformat,
-                                        gl_format,
-                                        gl_type,
-                                        gl_swizzle))
+  if (gdk_memory_format_get_rgba_format (data_format,
+                                         &alt_format,
+                                         &swizzle) &&
+      gdk_memory_format_gl_format (alt_format,
+                                   0,
+                                   gdk_gl_context_get_use_es (self->context),
+                                   gl_internalformat,
+                                   gl_internalsrgbformat,
+                                   gl_format,
+                                   gl_type,
+                                   &alt_swizzle))
     {
       flags = gdk_gl_context_get_format_flags (self->context, alt_format);
       if ((flags & required_flags) == required_flags)
@@ -1532,16 +1538,12 @@ memory_format_gl_format (GskGLCommandQueue *self,
           *out_can_mipmap = (flags & GDK_GL_FORMAT_RENDERABLE) ? TRUE : FALSE;
 
           if (self->can_swizzle)
-            return data_format;
+            {
+              gdk_swizzle_to_gl (swizzle, gl_swizzle);
+              return data_format;
+            }
 
-          gdk_memory_format_gl_format (alt_format,
-                                       gdk_gl_context_get_use_es (self->context),
-                                       gl_internalformat,
-                                       gl_internalsrgbformat,
-                                       gl_format,
-                                       gl_type,
-                                       gl_swizzle);
-
+          gdk_swizzle_to_gl (alt_swizzle, gl_swizzle);
           return alt_format;
         }
     }
@@ -1551,15 +1553,17 @@ memory_format_gl_format (GskGLCommandQueue *self,
   for (i = 0; fallbacks[i] != -1; i++)
     {
       flags = gdk_gl_context_get_format_flags (self->context, fallbacks[i]);
-      if (((flags & required_flags) == required_flags))
-        {
+      if (((flags & required_flags) == required_flags) &&
           gdk_memory_format_gl_format (fallbacks[i],
+                                       0,
                                        gdk_gl_context_get_use_es (self->context),
                                        gl_internalformat,
                                        gl_internalsrgbformat,
                                        gl_format,
                                        gl_type,
-                                       gl_swizzle);
+                                       &swizzle))
+        {
+          gdk_swizzle_to_gl (swizzle, gl_swizzle);
 
           *out_can_mipmap = (flags & GDK_GL_FORMAT_RENDERABLE) ? TRUE : FALSE;
           return fallbacks[i];
