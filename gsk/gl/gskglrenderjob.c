@@ -301,6 +301,7 @@ node_supports_2d_transform (const GskRenderNode *node)
     case GSK_FILL_NODE:
     case GSK_STROKE_NODE:
     case GSK_SUBSURFACE_NODE:
+    case GSK_COMPONENT_TRANSFER_NODE:
       return TRUE;
 
     case GSK_SHADOW_NODE:
@@ -358,6 +359,7 @@ node_supports_transform (const GskRenderNode *node)
     case GSK_FILL_NODE:
     case GSK_STROKE_NODE:
     case GSK_SUBSURFACE_NODE:
+    case GSK_COMPONENT_TRANSFER_NODE:
       return TRUE;
 
     case GSK_SHADOW_NODE:
@@ -4162,7 +4164,9 @@ gsk_gl_render_job_visit_node (GskGLRenderJob      *job,
     break;
 
     case GSK_DEBUG_NODE:
+    case GSK_COMPONENT_TRANSFER_NODE:
       /* Debug nodes are ignored because draws get reordered anyway */
+      /* TODO: Component transfer nodes are ignored because they are not implemented */
       gsk_gl_render_job_visit_node (job, gsk_debug_node_get_child (node));
     break;
 
